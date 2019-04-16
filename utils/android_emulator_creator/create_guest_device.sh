@@ -16,7 +16,7 @@ echo "adb has been found."
 
 # Install Xposed Application
 echo "Installing Xposed Application"
-# $ADB install apps/de.robv.android.xposed.installer_v33_36570c.apk
+$ADB install apps/de.robv.android.xposed.installer_v33_36570c.apk
 # $ADB install apps/xposed-installer-3-1-5.apk
 
 # Install Droidmon Application
@@ -26,9 +26,10 @@ $ADB install hooking/Droidmon.apk
 # Install Anti Emulator Detection Application
 # echo "Installing Anti Emulator Detection Application"
 # $ADB install hooking/EmulatorAntiDetect.apk
-# $ADB push anti-vm/fake-build.prop /data/local/tmp/
-# $ADB push anti-vm/fake-cpuinfo /data/local/tmp/
-# $ADB push anti-vm/fake-drivers /data/local/tmp/
+$ADB push anti-vm/fake-build.prop /data/local/tmp/
+$ADB push anti-vm/fake-cpuinfo /data/local/tmp/
+$ADB push anti-vm/fake-drivers /data/local/tmp/
+adb push hooking/frida-server /data/local/tmp/frida-server
 
 # Install Content Generator
 echo "Installing Content Generator"

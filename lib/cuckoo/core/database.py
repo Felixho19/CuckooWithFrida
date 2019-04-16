@@ -838,7 +838,8 @@ class Database(object):
         task.custom = custom
         task.machine = machine
         task.platform = platform
-        task.memory = memory
+        # task.memory = memory
+        task.memory = False
         task.enforce_timeout = enforce_timeout
 
         # Deal with tags format (i.e., foo,bar,baz)
@@ -862,6 +863,7 @@ class Database(object):
             session.commit()
             task_id = task.id
         except SQLAlchemyError as e:
+            print("Database error adding task: {0}".format(e))
             log.debug("Database error adding task: {0}".format(e))
             session.rollback()
             return None

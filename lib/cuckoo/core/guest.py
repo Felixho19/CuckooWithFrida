@@ -18,6 +18,7 @@ from lib.cuckoo.common.constants import CUCKOO_GUEST_FAILED
 from lib.cuckoo.common.exceptions import CuckooGuestError, CuckooFridaError
 from lib.cuckoo.common.utils import TimeoutServer, sanitize_filename
 from lib.cuckoo.core.resultserver import ResultServer
+from lib.cuckoo.api.frida_extensions import run_cmd_with_timeout, check_ping
 from lib.cuckoo.core.antivm import FridaManager
 
 log = logging.getLogger(__name__)
@@ -143,10 +144,10 @@ class GuestManager:
             # Wait for the agent to respond. This is done to check the
             # availability of the agent and verify that it's ready to receive
             # data.
-            self.wait(CUCKOO_GUEST_INIT)
             if self.platform == "android_device":
                 self._fm = FridaManager(self.ip, options)
-                self._fm.init()
+
+            self.wait(CUCKOO_GUEST_INIT)
 
             # Invoke the upload of the analyzer to the guest.
             self.upload_analyzer()
@@ -177,7 +178,10 @@ class GuestManager:
 
             # Launch the analyzer.
             if self._fm:
+                self._fm.init()
                 self._fm.start()
+                self._fm.wait_for_startup()
+
             pid = self.server.execute()
             log.debug("%s: analyzer started with PID %d", self.id, pid)
 
@@ -203,6 +207,7 @@ class GuestManager:
             # If the analysis hits the critical timeout, just return straight
             # away and try to recover the analysis results from the guest.
             if time.time() > end:
+                self._fm.turn_off()
                 raise CuckooGuestError("The analysis hit the critical timeout, terminating.")
 
             try:
@@ -213,14 +218,17 @@ class GuestManager:
 
             # React according to the returned status.
             if status == CUCKOO_GUEST_COMPLETED:
+                self._fm.turn_off()
                 log.info("%s: analysis completed successfully", self.id)
                 break
             elif status == CUCKOO_GUEST_FAILED:
                 error = self.server.get_error()
                 if not error:
                     error = "unknown error"
-
+                self._fm.turn_off()
                 raise CuckooGuestError("Analysis failed: {0}".format(error))
+            elif self._fm.check_frida_status():
+                raise CuckooGuestError("Analysis failed: {0}".format("Frida is not working"))
             else:
                 log.debug("%s: analysis not completed yet (status=%s)",
                           self.id, status)

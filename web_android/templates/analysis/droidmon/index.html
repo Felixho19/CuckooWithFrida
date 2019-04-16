@@ -4,6 +4,7 @@
         {% if "accounts" in analysis.droidmon %}<li class="active"><a href="#accounts_tab" data-toggle="tab">{% include "analysis/droidmon/images/accounts.html" %} Accounts</a></li>{% endif %}
         {% if "commands" in analysis.droidmon %}<li><a href="#commands_tab" data-toggle="tab">{% include "analysis/droidmon/images/commands.html" %} Commands</a></li>{% endif %}
         {% if "fingerprint" in analysis.droidmon %}<li><a href="#fingerprints_tab" data-toggle="tab">{% include "analysis/droidmon/images/forensics.html" %} Fingerprints</a></li>{% endif %}
+        {% if "emulator_detection" in analysis.droidmon %}<li><a href="#emulator_detection_tab" data-toggle="tab">{% include "analysis/droidmon/images/emulator_detection.html" %} Emulator Detection</a></li>{% endif %}
         {% if "registerContentObserver" in analysis.droidmon %}<li><a href="#content_observer_tab" data-toggle="tab">{% include "analysis/droidmon/images/observer.html" %} Content Observers</a></li>{% endif %}
         {% if "ContentResolver_queries" in analysis.droidmon %}<li><a href="#content_resolver_tab" data-toggle="tab">{% include "analysis/droidmon/images/query.html" %}Content Queries</a></li>{% endif %}
         {% if "ContentValues" in analysis.droidmon %}<li><a href="#content_values_tab" data-toggle="tab">{% include "analysis/droidmon/images/content.html" %} Content Values</a></li>{% endif %}
@@ -59,6 +60,12 @@
         {% if "fingerprint" in analysis.droidmon %}
         <div class="tab-pane fade" id="fingerprints_tab">
             {% include "analysis/droidmon/fingerprints.html" %}
+        </div>
+        {% endif %}
+
+        {% if "emulator_detection" in analysis.droidmon %}
+        <div class="tab-pane fade" id="emulator_detection_tab">
+            {% include "analysis/droidmon/emulator_detection.html" %}
         </div>
         {% endif %}
 

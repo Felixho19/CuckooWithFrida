@@ -204,7 +204,6 @@ def submit():
                                 "memory": memory})
 
     temp_file_path = store_temp_file(data.file.read(), data.filename)
-
     task_id = db.add_path(file_path=temp_file_path,
                           timeout=timeout,
                           priority=priority,

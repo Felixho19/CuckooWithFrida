@@ -9,6 +9,9 @@ import json
 import logging
 import os
 import re
+
+import six
+
 from lib.cuckoo.common.abstracts import Processing
 
 log = logging.getLogger(__name__)
@@ -23,6 +26,7 @@ class Droidmon(Processing):
 
         self.droidmon["crypto_keys"] = []
         self.droidmon["reflection_calls"] = set()
+        self.droidmon["emulator_detection"] = set()
         self.droidmon["SystemProperties"] = set()
         self.droidmon["started_activities"] = []
         self.droidmon["file_accessed"] = set()
@@ -425,10 +429,43 @@ class Droidmon(Processing):
             else:
                 self.droidmon["error"].append("Unhandled: %r" % line)
 
+        log_path = self.logs_path + "/emulatorDetect.log"
+        if not os.path.exists(log_path):
+            pass
+        else:
+            def checker(n):
+                if isinstance(n, six.string_types):
+                    return n.encode('utf-8')
+                return n
+            for line in open(log_path, "rb"):
+                try:
+                    data_t = json.loads(line)
+                    c = data_t.get('class').encode('utf-8')
+                    m = data_t.get('method').encode('utf-8')
+                    args = data_t.get('args')
+                    args = ''.join(list(map(checker, args)))
+                    original_r = data_t.get('result')
+                    if isinstance(original_r, six.string_types):
+                        original_r = original_r.encode('utf-8')
+                    hooked_r = data_t.get('hook_result')
+                    if c and m:
+                        try:
+                            msg_t = "'{}'->{}({})->(Original:{}, Changed:{})".format(c, m, args, original_r, hooked_r)
+                            self.droidmon["emulator_detection"].add(msg_t.encode('utf-8'))
+                        except Exception as e:
+                            log.debug(e)
+                            continue
+                except Exception as e:
+                    log.debug(e)
+                    continue
+
         for key, value in self.droidmon.items():
             if type(value) is set:
                 results[key] = list(value)
             else:
                 results[key] = value
+
+
+
 
         return results

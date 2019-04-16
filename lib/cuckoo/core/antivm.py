@@ -24,55 +24,94 @@ class FridaManager(Thread):
         self._ip = ip
         self._id = options['id']
         self._device = None
+        self.process_on = False
+        self._ready = False
         self._platform = "android_test"
+        self._log_count = 0
+        self._stop_flag = False
+        self._event = None
 
     def set_adb(self):
         try:
-            cmd = "adb kill-server && adb start-server"
-            run_cmd_with_timeout(cmd, 8)
-            cmd = "adb connect {}".format(self._ip)
-            run_cmd_with_timeout(cmd, 8)
+            # run_cmd_with_timeout("adb kill-server && adb start-server", 8)
+            os.system("adb start-server")
+            os.system("adb connect {}".format(self._ip))
             log.debug("Connect to device ip {}".format(self._ip))
         except Exception as e:
             log.error("adb fail to connect guest machine with ip: {}".format(self._ip))
+            self.unset_adb()
+            raise CuckooFridaError(e)
+
+    def unset_adb(self):
+        try:
+            os.system("killall adb")
+            log.debug("kill adb")
+        except Exception as e:
+            log.error("adb fail to kill adb server")
             raise CuckooFridaError(e)
 
     def set_frida_server(self):
         try:
-            cmd = "adb shell su -c data/local/tmp/frida-server &"
-            os.system(cmd)
+            os.system("adb shell su -c data/local/tmp/frida-server &")
+            time.sleep(1)
+            os.system("frida-ps -U")
             log.debug("Start Frida Server")
         except Exception as e:
-            log.error("adb fail to start frida-server on guest machine with ip: {}. ".format(self.ip))
+            self.unset_adb()
+            log.error("adb fail to start frida-server on guest machine with ip: {}. ".format(self._ip))
             raise CuckooFridaError(e)
 
     def set_device(self):
         try:
-            self._device = frida.get_usb_device(timeout=5)
+            # self._device = frida.get_usb_device(timeout=5)
+            log.debug(frida.enumerate_devices())
+            _id = "{}:5555".format(self._ip)
+            self._device = frida.get_device(_id, timeout=5)
+            log.debug("Successfully run the frida thread with {}".format(self._ip))
         except Exception as e:
+            self.unset_adb()
+            log.error("get_usb_device failed with connected adb device: {}. ".format(self._ip))
             raise CuckooFridaError("unable to run frida-server: {}".format(e))
-        log.debug("Successfully run the frida thread")
 
     def init(self):
+        # self.unset_adb()
         self.set_adb()
-        self.set_frida_server()
+        # self.set_frida_server()
         self.set_device()
 
+    def wait_for_startup(self):
+        while not self._ready:
+            time.sleep(1)
+        log.debug("Frida Startup is finished")
+
+    def turn_off(self):
+        self._stop_flag = True
+        self._event.set()
+
+    def check_frida_status(self):
+        return self._stop_flag
+
     def run(self):
-        file_dir = os.path.join(CUCKOO_ROOT, "storage", "analyses", str(self._id), "file")
+        main_dir = os.path.join(CUCKOO_ROOT, "storage", "analyses", str(self._id))
+        file_dir = os.path.join(main_dir, "file")
+        log_dir = os.path.join(main_dir, "logs")
         pending = []
         spawns = {}
         sessions = {}
         scripts = {}
-        event = Event()
+        anti_emulator_events = {}
+        self._event = Event()
 
         def on_child(child):
             log.debug("on_child: {}".format(child))
 
         def on_spawned(spawn_in):
             log.debug('on_spawned: {}'.format(spawn_in))
-            pending.append(spawn_in)
-            event.set()
+            if spawn_in.identifier in exception_list:
+                self._device.resume(spawn_in.pid)
+            else:
+                pending.append(spawn_in)
+                self._event.set()
 
         def on_removed(spawn_out):
             log.debug('on_removed: {}'.format(spawn_out))
@@ -85,6 +124,7 @@ class FridaManager(Thread):
 
         # respond to "send" in javascript
         # message {type:(send || error), payload: (str || list || dict)}
+
         def on_message(message, data):
             if message.get("type") == "send":
                 payload = message.get("payload")
@@ -92,61 +132,116 @@ class FridaManager(Thread):
                 pid = payload.get("Process")
                 if pid:
                     pid = spawns.get(pid, pid)
-                if payload.get("file"):
+                t = payload.get("type")
+
+                if t == "file":
                     # payload {"Process" : Process.id, "file" : fs.readFileSync(path), "path" : path}
-                    log.debug("on_message: {} - file - path {}".format(pid, payload.get("path")))
-                    # log.debug("on_message - file: {}".format(payload.get("file")))
+                    # log.debug("on_message: {} - file - path {}".format(pid, payload.get("path")))
+                    msg = payload.get("message")
+                    # log.debug('on_message: {} {} {}'.format(pid, msg, data))
                     data = payload.get("file")
                     write_to_file(file_dir, payload.get("path"), data)
-                    log.debug("on_message: {} - successfully write file {}".format(pid, payload.get("path")))
-                elif payload.get("message"):
+                    # log.debug("on_message: {} - successfully write file {}".format(pid, payload.get("path")))
+                elif t == "msg":
                     # payload {"Process" : Process.id, "message" :  "{Content}"};
                     msg = payload.get("message")
                     log.debug('on_message: {} {} {}'.format(pid, msg, data))
+                elif t == 'log':
+                    # send({"type":"log", "Process" : Process.id, "log": fs.readFileSync(path) ,"message":msg});
+                    msg = payload.get("message")
+                    log.debug('on_message: {} {} {}'.format(pid, msg, data))
+                    data = payload.get("log")
+                    title = payload.get("title", "temp_log")
+                    temp = self._log_count
+                    self._log_count += 1
+                    write_to_file(log_dir, "{}_{}.log".format(title, temp), data)
+                elif t == 'droidmon':
+                    msg = payload.get("message")
+                    data = payload.get("data")
+                    c = data.get('class')
+                    if c and anti_emulator_events.get(c):
+                        anti_emulator_events[c].append(data)
+                    elif not anti_emulator_events.get(c):
+                        anti_emulator_events[c] = [data]
+                    log.debug('on_message: {} {} {}'.format(pid, msg, data))
+                    write_to_file(log_dir, "emulatorDetect.log", data, json_enabled=True)
+                elif t == 'recv_wait':  # TODO: server-side intercept
+                    msg = payload.get("message")
+                    data = payload.get("data")
+                    # TODO: Logic handling
+                    s = scripts.get(pid)
+                    if s:
+                        # s.post({JSON})
+                        pass
+                    log.debug('on_message: {} {} {}'.format(pid, msg, data))
+            else:
+                log.debug("{} {}".format(message, data))
 
         try:
+            log.debug("Run")
+            log.debug("Device: {}".format(self._device))
             self._device.on('spawn-added', on_spawned)
+            self._device.on('child-added', on_child)
             # self._device.on('spawn-removed', on_removed)
             self._device.enable_spawn_gating()
             log.debug("Enabled spawn gating")
-            # log.debug("Pending: {}".format(self._device.enumerate_pending_spawn()))
             for spawn in self._device.enumerate_pending_spawn():
-                # log.debug('Resuming: {}'.format(spawn))
                 self._device.resume(spawn.pid)
+            self._ready = True
             while True:
                 while len(pending) == 0:
-                    # log.debug('Waiting for data')
-                    event.wait(5)
-                    try:
-                        frida.get_usb_device(timeout=5)
-                    except:
+                    self._event.wait()
+                    if self._stop_flag:
                         raise ValueError("Task #{}: {} is terminated.".format(self._id, self._device))
-                    event.clear()
+                    self._event.clear()
                 spawn = pending.pop()
                 if spawn.identifier is not None and spawn.identifier not in exception_list:
                     log.debug('Instrumenting: {}'.format(spawn))
                     session = self._device.attach(spawn.pid)
                     # session.enable_jit()
-                    # session.on('child-added', on_child)
-                    # session.enable_child_gating()
+                    # TODO: Handle subprocess
+                    session.enable_child_gating()
                     # Early instrumentation by rpc exports feature
                     script = session.create_script(get_script(self._platform))
                     script.on('message', on_message)
                     script.load()
                     script.exports.init()
+                    # script.exports.debug()
                     log.debug('Instrumented: {}'.format(spawn))
                     sessions[spawn.pid] = session
                     scripts[spawn.pid] = script
                     spawns[spawn.pid] = spawn
+                    try:
+                        self._device.resume(spawn.pid)
+                    except Exception as e:
+                        if 'unable to find process with pid' in str(e):
+                            pass
+                        else:
+                            raise CuckooFridaError(e)
+                    time.sleep(1)
+                    # script.exports.modules()
                 else:
                     log.debug('Not instrumenting: {}'.format(spawn))
-                self._device.resume(spawn.pid)
-                time.sleep(1)
+                    self._device.resume(spawn.pid)
+                    time.sleep(1)
                 log.debug('Processed: {}'.format(spawn))
         except ValueError as normal:
+            self._device.off('spawn-added', on_spawned)
+            frida.shutdown()
+            self.unset_adb()
             log.debug(normal)
+        except KeyboardInterrupt as k:
+            frida.shutdown()
+            self.unset_adb()
+            frida.shutdown()
+            log.debug(k)
         except Exception as e:
+            frida.shutdown()
+            self.unset_adb()
+            self._stop_flag = True
             raise CuckooFridaError(e)
+
+        return None
 
 
 

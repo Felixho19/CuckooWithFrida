@@ -1,0 +1,41 @@
+2019-04-02 16:43:55,783 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 16:44:54,305 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 16:45:09,226 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 16:45:09,227 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 16:47:55,081 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 16:47:55,082 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 16:51:26,952 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 16:51:26,955 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 16:53:02,160 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 16:53:02,161 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 17:00:35,354 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 17:00:35,355 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 17:03:09,334 - INFO - DATASET HAS BEEN CREATED. 293963 APKS SATISFY CRITERIA
+2019-04-02 17:04:06,332 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 17:04:06,333 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 17:06:23,089 - INFO - DATASET HAS BEEN CREATED. 293963 APKS SATISFY CRITERIA
+2019-04-02 17:06:23,091 - INFO - DOWNLOADING 1, number of threads 4
+2019-04-02 17:10:25,302 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-02 17:10:25,304 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-02 17:12:49,731 - INFO - DATASET HAS BEEN CREATED. 293963 APKS SATISFY CRITERIA
+2019-04-02 17:12:49,734 - INFO - DOWNLOADING 1, number of threads 4
+2019-04-02 17:13:00,339 - INFO - SAVE METADATA ['sha256', 'pkg_name', 'apk_size', 'dex_date', 'markets']
+2019-04-08 11:59:38,901 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-08 12:00:10,782 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-08 12:00:10,783 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 3000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-08 12:01:23,425 - INFO - Keyboard interrupt
+2019-04-08 12:01:50,433 - INFO - START. APKS TO DOWNLOAD: 1
+2019-04-08 12:01:50,434 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 300000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-08 12:06:00,395 - INFO - DATASET HAS BEEN CREATED. 1839178 APKS SATISFY CRITERIA
+2019-04-08 12:06:00,397 - INFO - DOWNLOADING 1, number of threads 4
+2019-04-08 12:06:58,535 - INFO - SAVE METADATA ['sha256', 'pkg_name', 'apk_size', 'dex_date', 'markets']
+2019-04-08 12:46:25,002 - INFO - START. APKS TO DOWNLOAD: 10
+2019-04-08 12:46:25,005 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 300000000), vt_detection=(None, None), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-08 12:50:33,746 - INFO - DATASET HAS BEEN CREATED. 1839178 APKS SATISFY CRITERIA
+2019-04-08 12:50:33,748 - INFO - DOWNLOADING 10, number of threads 4
+2019-04-08 12:53:23,656 - INFO - SAVE METADATA ['sha256', 'pkg_name', 'apk_size', 'dex_date', 'markets']
+2019-04-13 02:34:42,678 - INFO - START. APKS TO DOWNLOAD: 10
+2019-04-13 02:34:42,679 - INFO - CREATE DATASET BY CRITERIA: dex_date=(datetime.datetime(2015, 12, 11, 0, 0), None), apk_size=(None, 300000000), vt_detection=(30, 61), markets=set([u'play.google.com', u'appchina']), pkg_name=None, sha256=None, sha1=None, md5=None
+2019-04-13 02:39:02,955 - INFO - DATASET HAS BEEN CREATED. 499 APKS SATISFY CRITERIA
+2019-04-13 02:39:02,958 - INFO - DOWNLOADING 10, number of threads 4
+2019-04-13 02:40:40,942 - INFO - SAVE METADATA ['sha256', 'pkg_name', 'apk_size', 'dex_date', 'markets']

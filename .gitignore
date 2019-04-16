@@ -1,2 +1,5 @@
 
 *.pyc
+*.apk
+*.jpg
+hook_scripts/temp/compiled.js
