@@ -62,11 +62,11 @@ Using Frida to bypass emulator detection when you use Cuckoodroid to test Androi
     - [ ] java.util.Timer, java.util.TimerTask (The idea is setting a time limit to delayed code)
     - [ ] If it is waiting for attacker server to give command in order to continue... no idea how to automate the judgement.
  
- - 6. Hardware detection
-   Testing the existance of some hardware/sensor that the emulators do not have, such as BlueTooth, Camera.
-   - [ ] Camera
-   - [ ] BlueTooth
-   - [ ] More... The possible combination of checking ways is too much...
+  - 6. Hardware detection
+    Testing the existance of some hardware/sensor that the emulators do not have, such as BlueTooth, Camera.
+    - [ ] Camera
+    - [ ] BlueTooth
+    - [ ] More... The possible combination of checking ways is too much...
  
 
   
