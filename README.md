@@ -12,7 +12,7 @@ Using Frida to bypass emulator detection when you use Cuckoodroid to test Androi
 - [X] Run on Android X86 Virtual Box Image
 - [ ] Run on Android ARM emulator
 - [ ] Run on Android ARM emulator in Guest Machine
-- [X] Bypass emulator detection
+- [X] Bypass emulator detection (Basic)
 
 #### System properties check
     The most frequent approach which can check the running device is emulator or not effectively.
