@@ -64,6 +64,7 @@ Using Frida to bypass emulator detection when you use Cuckoodroid to test Androi
  
   #### Hardware detection
     Testing the existance of some hardware/sensor that the emulators do not have, such as BlueTooth, Camera.
+    * To solve this type of checking:
     [ ] Camera
     [ ] BlueTooth
     [ ] More... The possible combination of checking ways is too much...
