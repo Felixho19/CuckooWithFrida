@@ -3,3 +3,12 @@
 *.apk
 *.jpg
 hook_scripts/temp/compiled.js
+*.conf
+*.db
+*.log
+*.csv
+node_modules/
+storage/
+*.json
+*.xml
+*.xml
