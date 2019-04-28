@@ -58,7 +58,7 @@ Using Frida to bypass emulator detection when you use Cuckoodroid to test Androi
     The idea of delayed execution is triggering the malicious code by some specific moment or event. 
     If those specific moment or event has not occurred, the malicious code will not run and then the analysis will fail.
     * To solve this type of checking:
-    [ ] android.os.handler.postDelayed (The idea is setting a time limit to delayed code. Not sure the correctness)
+    [X] android.os.handler.postDelayed (The idea is setting a time limit to delayed code.)
     [ ] java.util.Timer, java.util.TimerTask (The idea is setting a time limit to delayed code)
     [ ] If it is waiting for attacker server to give command in order to continue... no idea how to automate the judgement.
  
