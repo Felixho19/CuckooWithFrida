@@ -87,6 +87,7 @@ const build_prop = {
     "af.resampler.quality": "4",
     "persist.radio.custom_ecc": "1",
     "persist.radio.always_send_plmn": "true",
+    "persist.sys.nativebridge": '1',
     "ro.input.noresample": "1",
     "dalvik.vm.heapstartsize": "8m",
     "dalvik.vm.heapgrowthlimit": "192m",
@@ -148,9 +149,11 @@ const Debug = Java.use("android.os.Debug");
 const DexClassLoader = Java.use("dalvik.system.DexClassLoader");
 const FileIO = Java.use('java.io.File');
 const FileInputStream = Java.use("java.io.FileInputStream");
+const Handler = Java.use("android.os.Handler");
 const InputStream = Java.use("java.io.InputStream");
 const LocationManager = Java.use("android.location.LocationManager");
 const Location = Java.use("android.location.Location");
+const Looper = Java.use("android.os.Looper");
 const NameNotFoundException = Java.use("android.content.pm.PackageManager$NameNotFoundException");
 const NetworkInterface = Java.use("java.net.NetworkInterface");
 const ObjectClass= Java.use("java.lang.Object");
@@ -164,6 +167,8 @@ const System = Java.use('java.lang.System');
 const SystemProperties = Java.use('android.os.SystemProperties');
 const TelephonyManager = Java.use("android.telephony.TelephonyManager");
 const ThreadDef = Java.use('java.lang.Thread');
+const Timer = Java.use('java.util.Timer');
+const TimerTask = Java.use('java.util.TimerTask');
 const VMStack = Java.use('dalvik.system.VMStack');
 const wifiInfo = Java.use("android.net.wifi.WifiInfo");
 
@@ -242,6 +247,12 @@ PackageManager.getPackageInfo.implementation = function (packagename, id) {
     return this.getPackageInfo.call(this, packagename, id);
 };
 //PackageManager.getInstallerPackageName.implementation = function(package){return "com.android.vending";};
+Handler.postDelayed.implementation = function(runnable, uptime){
+    if(uptime > 2000){
+        return this.postDelayed.call(this, runnable, 2000);
+    }
+    return this.postDelayed.call(this, runnable, 2000);
+};
 const lat = 27.9864882;
 const lng = 33.7279001;
 LocationManager.getLastKnownLocation.implementation = function () {
@@ -646,6 +657,20 @@ ProcManExecVariant.implementation = function(cmd, env, directory, stdin, stdout,
 
         if (tmp_cmd == "su") {
             var fake_cmd = ["grep"];
+            var date = new Date(); var timestamp = date.getTime();
+            droidmon_log("Bypass exec",{
+                "class":"java.lang.ProcessManager",
+                "method":"exec",
+                "timestamp": timestamp,
+                "type":"content",
+                "args": [cmd, env, directory, stdin, stdout, stderr, redirect],
+                "result": tmp_cmd,
+                "hook_result": fake_cmd
+            });
+        }
+
+        if (tmp_cmd == "uptime") {
+            var fake_cmd = ["echo", " 09:28:32 up 600 min,  0 users,  load average: 0.09, 0.36, 0.19"];
             var date = new Date(); var timestamp = date.getTime();
             droidmon_log("Bypass exec",{
                 "class":"java.lang.ProcessManager",

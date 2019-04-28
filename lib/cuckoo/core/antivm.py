@@ -1,7 +1,3 @@
-# Copyright (C) 2010-2015 Cuckoo Foundation.
-# This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
-# See the file 'docs/LICENSE' for copying permission.
-
 import frida, os, time
 import logging
 from threading import Thread, Event
@@ -14,9 +10,8 @@ log = logging.getLogger(__name__)
 
 class FridaManager(Thread):
     """Frida Manager.
-
-    This class handles the js code injection with the agents running in the
-    machines.
+    This class handles the js code injection with the frida-server running in the
+    machines, and the message sent from the machines.
     """
     def __init__(self, ip, options):
         Thread.__init__(self)
@@ -64,7 +59,7 @@ class FridaManager(Thread):
     def set_device(self):
         try:
             # self._device = frida.get_usb_device(timeout=5)
-            log.debug(frida.enumerate_devices())
+            # log.debug(frida.enumerate_devices())
             _id = "{}:5555".format(self._ip)
             self._device = frida.get_device(_id, timeout=5)
             log.debug("Successfully run the frida thread with {}".format(self._ip))
@@ -76,7 +71,8 @@ class FridaManager(Thread):
     def init(self):
         # self.unset_adb()
         self.set_adb()
-        # self.set_frida_server()
+        # comment this line if run 4.4
+        self.set_frida_server()
         self.set_device()
 
     def wait_for_startup(self):
@@ -181,7 +177,7 @@ class FridaManager(Thread):
             log.debug("Run")
             log.debug("Device: {}".format(self._device))
             self._device.on('spawn-added', on_spawned)
-            self._device.on('child-added', on_child)
+            # self._device.on('child-added', on_child)
             # self._device.on('spawn-removed', on_removed)
             self._device.enable_spawn_gating()
             log.debug("Enabled spawn gating")
@@ -200,7 +196,7 @@ class FridaManager(Thread):
                     session = self._device.attach(spawn.pid)
                     # session.enable_jit()
                     # TODO: Handle subprocess
-                    session.enable_child_gating()
+                    # session.enable_child_gating()
                     # Early instrumentation by rpc exports feature
                     script = session.create_script(get_script(self._platform))
                     script.on('message', on_message)
@@ -227,21 +223,16 @@ class FridaManager(Thread):
                 log.debug('Processed: {}'.format(spawn))
         except ValueError as normal:
             self._device.off('spawn-added', on_spawned)
-            frida.shutdown()
             self.unset_adb()
             log.debug(normal)
         except KeyboardInterrupt as k:
-            frida.shutdown()
             self.unset_adb()
             frida.shutdown()
             log.debug(k)
         except Exception as e:
-            frida.shutdown()
             self.unset_adb()
             self._stop_flag = True
             raise CuckooFridaError(e)
-
-        return None
 
 
 

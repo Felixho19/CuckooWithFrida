@@ -70,6 +70,18 @@ class GuestManager:
                     log.debug("%s: status ready", self.id)
                     break
             except:
+                if self.id == "aosx" and self._fm and check_ping(self.ip):
+                    if not self._fm.process_on:
+                        run_cmd_with_timeout("killall adb", 4)
+                        run_cmd_with_timeout("adb root", 4)
+                        run_cmd_with_timeout("adb connect {}".format(self.ip), 4)
+                        run_cmd_with_timeout("adb shell am start -n com.cuckoo.agent/com.cuckoo.agent.MainActivity -a android.intent.action.MAIN,android.intent.action.BOOT_COMPLETED -c android.intent.category.LAUNCHER",4)
+                        time.sleep(2)
+                        self._fm.set_frida_server()
+                        time.sleep(2)
+                        run_cmd_with_timeout("adb shell am restart", 4)
+                        self._fm.process_on = True
+                        time.sleep(10)
                 pass
 
             log.debug("%s: not ready yet", self.id)
